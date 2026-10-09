@@ -183,6 +183,28 @@ public:
 
     friend Image operator*(T constant, const Image &image) { return image * constant; }
     friend Image operator+(T constant, const Image &image) { return image + constant; }
+
+    Image operator!() const
+    {
+        Image result(rows_, cols_, false);
+        for (std::size_t i = 0; i < rows_ * cols_; ++i)
+        {
+            if constexpr (std::is_same_v<T, bool>)
+            {
+                result.data_[i] = !data_[i];
+            }
+            else if constexpr (std::is_signed_v<T>)
+            {
+                result.data_[i] = saturate<T>(-static_cast<long double>(data_[i]));
+            }
+            else
+            {
+                result.data_[i] = static_cast<T>(std::numeric_limits<T>::max() - data_[i]);
+            }
+        }
+        return result;
+    }
+
 };
 
 int main()
@@ -193,5 +215,10 @@ int main()
               << b << '\n';
     std::cout << a + b << '\n'
               << a * b;
+
+    std::cout << '\n'
+              << a + 10 << '\n'
+              << 2 * a;
+
     return 0;
 }
