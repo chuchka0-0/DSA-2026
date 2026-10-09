@@ -205,6 +205,16 @@ public:
         return result;
     }
 
+    long double fillRatio() const
+    {
+        long double sum = 0;
+        for (std::size_t i = 0; i < rows_ * cols_; ++i)
+        {
+            sum += static_cast<long double>(data_[i]);
+        }
+        const long double maxValue = static_cast<long double>(std::numeric_limits<T>::max());
+        return sum / (static_cast<long double>(rows_ * cols_) * maxValue);
+    }
 };
 
 int main()
