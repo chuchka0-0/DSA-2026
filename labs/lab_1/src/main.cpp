@@ -186,20 +186,20 @@ public:
 
     Image operator!() const
     {
-        Image result(rows_, cols_, false);
-        for (std::size_t i = 0; i < rows_ * cols_; ++i)
+        Image result(_rows, _cols, false);
+        for (std::size_t i = 0; i < _rows * _cols; ++i)
         {
             if constexpr (std::is_same_v<T, bool>)
             {
-                result.data_[i] = !data_[i];
+                result._data[i] = !_data[i];
             }
             else if constexpr (std::is_signed_v<T>)
             {
-                result.data_[i] = saturate<T>(-static_cast<long double>(data_[i]));
+                result._data[i] = saturate<T>(-static_cast<long double>(_data[i]));
             }
             else
             {
-                result.data_[i] = static_cast<T>(std::numeric_limits<T>::max() - data_[i]);
+                result._data[i] = static_cast<T>(std::numeric_limits<T>::max() - _data[i]);
             }
         }
         return result;
@@ -208,13 +208,31 @@ public:
     long double fillRatio() const
     {
         long double sum = 0;
-        for (std::size_t i = 0; i < rows_ * cols_; ++i)
+        for (std::size_t i = 0; i < _rows * _cols; ++i)
         {
-            sum += static_cast<long double>(data_[i]);
+            sum += static_cast<long double>(_data[i]);
         }
         const long double maxValue = static_cast<long double>(std::numeric_limits<T>::max());
-        return sum / (static_cast<long double>(rows_ * cols_) * maxValue);
+        return sum / (static_cast<long double>(_rows * _cols) * maxValue);
     }
+
+    bool operator==(const Image &other) const
+    {
+        if (_rows != other._rows || _cols != other._cols)
+        {
+            return false;
+        }
+        for (std::size_t i = 0; i < _rows * _cols; ++i)
+        {
+            if (!equal(_data[i], other._data[i]))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool operator!=(const Image &other) const { return !(*this == other); }
 };
 
 int main()
@@ -229,6 +247,9 @@ int main()
     std::cout << '\n'
               << a + 10 << '\n'
               << 2 * a;
+
+    std::cout << '\n'
+              << !a << "Fill ratio: " << a.fillRatio() << '\n';
 
     return 0;
 }
