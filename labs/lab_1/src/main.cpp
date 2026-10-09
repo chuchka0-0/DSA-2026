@@ -30,26 +30,37 @@ private:
         }
     }
 
-        static T add(T a, T b) {
-        if constexpr (std::is_same_v<T, bool>) {
+    static T add(T a, T b)
+    {
+        if constexpr (std::is_same_v<T, bool>)
+        {
             return a || b;
-        } else {
+        }
+        else
+        {
             return saturate<T>(static_cast<long double>(a) + static_cast<long double>(b));
         }
     }
 
-    static T multiply(T a, T b) {
-        if constexpr (std::is_same_v<T, bool>) {
+    static T multiply(T a, T b)
+    {
+        if constexpr (std::is_same_v<T, bool>)
+        {
             return a && b;
-        } else {
+        }
+        else
+        {
             return saturate<T>(static_cast<long double>(a) * static_cast<long double>(b));
         }
     }
 
-    Image combine(const Image& other, bool isSum) const {
+    Image combine(const Image &other, bool isSum) const
+    {
         Image result(std::max(_rows, other._rows), std::max(_cols, other._cols), false);
-        for (std::size_t i = 0; i < result._rows; ++i) {
-            for (std::size_t j = 0; j < result._cols; ++j) {
+        for (std::size_t i = 0; i < result._rows; ++i)
+        {
+            for (std::size_t j = 0; j < result._cols; ++j)
+            {
                 T a = (i < _rows && j < _cols) ? data_[i * _cols + j] : T{};
                 T b = (i < other._rows && j < other._cols) ? other._data[i * other._cols + j] : T{};
                 result._data[i * result._cols + j] = isSum ? add(a, b) : multiply(a, b);
@@ -146,17 +157,41 @@ public:
         return out;
     }
 
-    Image operator*(const Image& other) const { return combine(other, false); }
+    Image operator*(const Image &other) const { return combine(other, false); }
 
-    Image operator+(const Image& other) const { return combine(other, true); }
+    Image operator+(const Image &other) const { return combine(other, true); }
 
+    Image operator*(T constant) const
+    {
+        Image result(_rows, _cols, false);
+        for (std::size_t i = 0; i < _rows * _cols; ++i)
+        {
+            result._data[i] = multiply(_data[i], constant);
+        }
+        return result;
+    }
+
+    Image operator+(T constant) const
+    {
+        Image result(_rows, _cols, false);
+        for (std::size_t i = 0; i < _rows * _cols; ++i)
+        {
+            result._data[i] = add(_data[i], constant);
+        }
+        return result;
+    }
+
+    friend Image operator*(T constant, const Image &image) { return image * constant; }
+    friend Image operator+(T constant, const Image &image) { return image + constant; }
 };
 
 int main()
 {
     Image<short> a(2, 3, true);
     Image<short> b(3, 2, true);
-    std::cout << a << '\n' << b << '\n';
-    std::cout << a + b << '\n' << a * b;
+    std::cout << a << '\n'
+              << b << '\n';
+    std::cout << a + b << '\n'
+              << a * b;
     return 0;
 }
