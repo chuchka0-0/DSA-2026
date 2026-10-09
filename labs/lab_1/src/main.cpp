@@ -1,6 +1,20 @@
 import std;
 
 template <typename T>
+T saturate(long double value)
+{
+    const T low = std::numeric_limits<T>::lowest();
+    const T high = std::numeric_limits<T>::max();
+    if (value < static_cast<long double>(low))
+    {
+        return low;
+    }
+    if (value > static_cast<long double>(high))
+    {
+        return high;
+    }
+    return static_cast<T>(value);
+}
 class Image
 {
 private:
@@ -14,6 +28,34 @@ private:
         {
             throw std::out_of_range("Image index is out of range");
         }
+    }
+
+        static T add(T a, T b) {
+        if constexpr (std::is_same_v<T, bool>) {
+            return a || b;
+        } else {
+            return saturate<T>(static_cast<long double>(a) + static_cast<long double>(b));
+        }
+    }
+
+    static T multiply(T a, T b) {
+        if constexpr (std::is_same_v<T, bool>) {
+            return a && b;
+        } else {
+            return saturate<T>(static_cast<long double>(a) * static_cast<long double>(b));
+        }
+    }
+
+    Image combine(const Image& other, bool isSum) const {
+        Image result(std::max(_rows, other._rows), std::max(_cols, other._cols), false);
+        for (std::size_t i = 0; i < result._rows; ++i) {
+            for (std::size_t j = 0; j < result._cols; ++j) {
+                T a = (i < _rows && j < _cols) ? data_[i * _cols + j] : T{};
+                T b = (i < other._rows && j < other._cols) ? other._data[i * other._cols + j] : T{};
+                result._data[i * result._cols + j] = isSum ? add(a, b) : multiply(a, b);
+            }
+        }
+        return result;
     }
 
     void fillRandom()
@@ -103,12 +145,18 @@ public:
         }
         return out;
     }
+
+    Image operator*(const Image& other) const { return combine(other, false); }
+
+    Image operator+(const Image& other) const { return combine(other, true); }
+
 };
 
 int main()
 {
-    Image<short> image(2, 3);
-    image(0, 1) = 5;
-    std::cout << image(0, 1) << '\n';
+    Image<short> a(2, 3, true);
+    Image<short> b(3, 2, true);
+    std::cout << a << '\n' << b << '\n';
+    std::cout << a + b << '\n' << a * b;
     return 0;
 }
