@@ -90,6 +90,19 @@ public:
         checkIndex(row, col);
         return _data[row * _cols + col];
     }
+
+    friend std::ostream &operator<<(std::ostream &out, const Image &image)
+    {
+        for (std::size_t i = 0; i < image._rows; ++i)
+        {
+            for (std::size_t j = 0; j < image._cols; ++j)
+            {
+                out << std::setw(9) << +image._data[i * image._cols + j];
+            }
+            out << '\n';
+        }
+        return out;
+    }
 };
 
 int main()
