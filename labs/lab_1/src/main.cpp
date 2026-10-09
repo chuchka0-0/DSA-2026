@@ -22,6 +22,8 @@ private:
     std::size_t _cols;
     T *_data;
 
+    static constexpr double kEpsilon = 1e-6;
+
     void checkIndex(std::size_t row, std::size_t col) const
     {
         if (row >= _rows || col >= _cols)
@@ -91,6 +93,18 @@ private:
                 std::uniform_int_distribution<int> dist(low, high);
                 data_[i] = static_cast<T>(dist(generator));
             }
+        }
+    }
+
+    static bool equal(T a, T b)
+    {
+        if constexpr (std::is_floating_point_v<T>)
+        {
+            return std::fabs(static_cast<double>(a) - static_cast<double>(b)) < kEpsilon;
+        }
+        else
+        {
+            return a == b;
         }
     }
 
