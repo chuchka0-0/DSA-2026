@@ -249,21 +249,111 @@ public:
     bool operator!=(const Image &other) const { return !(*this == other); }
 };
 
-int main()
+template <typename T>
+void drawLine(Image<T> &image, int x1, int y1, int x2, int y2, T value)
 {
-    Image<short> a(2, 3, true);
-    Image<short> b(3, 2, true);
-    std::cout << a << '\n'
-              << b << '\n';
-    std::cout << a + b << '\n'
-              << a * b;
+    const int width = static_cast<int>(image.cols());
+    const int height = static_cast<int>(image.rows());
+    if (x1 < 0 || x2 < 0 || y1 < 0 || y2 < 0 ||
+        x1 >= width || x2 >= width || y1 >= height || y2 >= height)
+    {
+        throw std::out_of_range("Line goes outside of the image");
+    }
 
-    std::cout << '\n'
-              << a + 10 << '\n'
-              << 2 * a;
+    const int dx = std::abs(x2 - x1);
+    const int dy = -std::abs(y2 - y1);
+    const int stepX = (x1 < x2) ? 1 : -1;
+    const int stepY = (y1 < y2) ? 1 : -1;
+    int error = dx + dy;
 
-    std::cout << '\n'
-              << !a << "Fill ratio: " << a.fillRatio() << '\n';
+    while (true)
+    {
+        image(static_cast<std::size_t>(y1), static_cast<std::size_t>(x1)) = value;
+        if (x1 == x2 && y1 == y2)
+        {
+            break;
+        }
+        const int doubledError = 2 * error;
+        if (doubledError >= dy)
+        {
+            error += dy;
+            x1 += stepX;
+        }
+        if (doubledError <= dx)
+        {
+            error += dx;
+            y1 += stepY;
+        }
+    }
+}
 
+template <typename T>
+void demonstrate(const char* typeName) {
+    std::cout << "=========== Type: " << typeName << " ===========\n";
+
+    Image<T> a(3, 4, true);
+    Image<T> b(2, 5, true);
+    const T big = std::numeric_limits<T>::max();
+
+    std::cout << "Image a (3x4):\n" << a;
+    std::cout << "Image b (2x5):\n" << b;
+    std::cout << "a + b (size 3x5):\n" << a + b;
+    std::cout << "a * b (size 3x5):\n" << a * b;
+    std::cout << "a + max value (overflow is clamped):\n" << a + big;
+    std::cout << "max value * a:\n" << big * a;
+    std::cout << "!a (inverted):\n" << !a;
+    std::cout << "Fill ratio of a: " << a.fillRatio() << '\n';
+
+    a(0, 0) = b(1, 1);
+    std::cout << "After a(0,0) = b(1,1):\n" << a;
+
+    Image<T> copy = a;
+    Image<T> assigned(1, 1, false);
+    assigned = a;
+    std::cout << "copy == a: " << (copy == a) << ", assigned != a: " << (assigned != a)
+              << ", a == b: " << (a == b) << "\n\n";
+}
+
+int main() {
+    try {
+        demonstrate<bool>("bool");
+        demonstrate<char>("char");
+        demonstrate<float>("float");
+        demonstrate<short>("short");
+
+        try {
+            Image<short> small(2, 2, false);
+            small(5, 5) = 1;
+        } catch (const std::out_of_range& error) {
+            std::cout << "Caught exception: " << error.what() << "\n\n";
+        }
+
+        std::size_t rows = 0;
+        std::size_t cols = 0;
+        int x1 = 0;
+        int y1 = 0;
+        int x2 = 0;
+        int y2 = 0;
+        short fillValue = 0;
+
+        std::cout << "Enter image height and width: ";
+        std::cin >> rows >> cols;
+        std::cout << "Enter x1 y1 x2 y2 (x - column, y - row, from 0): ";
+        std::cin >> x1 >> y1 >> x2 >> y2;
+        std::cout << "Enter fill value: ";
+        std::cin >> fillValue;
+
+        if (!std::cin) {
+            std::cout << "Input error\n";
+            return 1;
+        }
+
+        Image<short> canvas(rows, cols, false);
+        drawLine(canvas, x1, y1, x2, y2, fillValue);
+        std::cout << "Result:\n" << canvas;
+    } catch (const std::exception& error) {
+        std::cout << "Error: " << error.what() << '\n';
+        return 1;
+    }
     return 0;
 }
