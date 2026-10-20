@@ -39,29 +39,9 @@ private:
         return (row < _rows && col < _cols) ? _data[row * _cols + col] : T{};
     }
 
-    static T add(T a, T b)
-    {
-        if constexpr (std::is_same_v<T, bool>)
-        {
-            return a || b;
-        }
-        else
-        {
-            return saturate<T>(static_cast<long double>(a) + static_cast<long double>(b));
-        }
-    }
+    static T add(T a, T b) { return saturate<T>(a + b); }
 
-    static T multiply(T a, T b)
-    {
-        if constexpr (std::is_same_v<T, bool>)
-        {
-            return a && b;
-        }
-        else
-        {
-            return saturate<T>(static_cast<long double>(a) * static_cast<long double>(b));
-        }
-    }
+    static T multiply(T a, T b) { return saturate<T>(a * b); }
 
     static T invert(T value)
     {
@@ -209,12 +189,14 @@ public:
 
     Image operator+(T constant) const
     {
-        return mapped([constant](T value) { return add(value, constant); });
+        return mapped([constant](T value)
+                      { return add(value, constant); });
     }
 
     Image operator*(T constant) const
     {
-        return mapped([constant](T value) { return multiply(value, constant); });
+        return mapped([constant](T value)
+                      { return multiply(value, constant); });
     }
 
     friend Image operator+(T constant, const Image &image) { return image + constant; }
@@ -300,17 +282,25 @@ void demonstrate(const char *typeName)
     Image<T> b(2, 5, true);
     const T big = std::numeric_limits<T>::max();
 
-    std::cout << "Image a (3x4):\n" << a;
-    std::cout << "Image b (2x5):\n" << b;
-    std::cout << "a + b (size 3x5):\n" << a + b;
-    std::cout << "a * b (size 3x5):\n" << a * b;
-    std::cout << "a + max value (overflow is clamped):\n" << a + big;
-    std::cout << "max value * a:\n" << big * a;
-    std::cout << "!a (inverted):\n" << !a;
+    std::cout << "Image a (3x4):\n"
+              << a;
+    std::cout << "Image b (2x5):\n"
+              << b;
+    std::cout << "a + b (size 3x5):\n"
+              << a + b;
+    std::cout << "a * b (size 3x5):\n"
+              << a * b;
+    std::cout << "a + max value (overflow is clamped):\n"
+              << a + big;
+    std::cout << "max value * a:\n"
+              << big * a;
+    std::cout << "!a (inverted):\n"
+              << !a;
     std::cout << "Fill ratio of a: " << a.fillRatio() << '\n';
 
     a(0, 0) = b(1, 1);
-    std::cout << "After a(0,0) = b(1,1):\n" << a;
+    std::cout << "After a(0,0) = b(1,1):\n"
+              << a;
 
     Image<T> copy = a;
     Image<T> assigned(1, 1, false);
@@ -363,7 +353,8 @@ int main()
 
         Image<short> canvas(static_cast<std::size_t>(rows), static_cast<std::size_t>(cols), false);
         drawLine(canvas, x1, y1, x2, y2, fillValue);
-        std::cout << "Result:\n" << canvas;
+        std::cout << "Result:\n"
+                  << canvas;
     }
     catch (const std::exception &error)
     {
