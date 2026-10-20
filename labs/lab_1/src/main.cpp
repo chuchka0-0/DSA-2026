@@ -15,6 +15,8 @@ T saturate(long double value)
     }
     return static_cast<T>(value);
 }
+
+template <typename T>
 class Image
 {
 private:
@@ -22,7 +24,7 @@ private:
     std::size_t _cols;
     T *_data;
 
-    static constexpr double kEpsilon = 1e-6;
+    static constexpr double _epsilon = 1e-6;
 
     void checkIndex(std::size_t row, std::size_t col) const
     {
@@ -30,6 +32,12 @@ private:
         {
             throw std::out_of_range("Image index is out of range");
         }
+    }
+
+    // Значение пикселя или ноль, если пикселя за границами нет
+    T valueAt(std::size_t row, std::size_t col) const
+    {
+        return (row < _rows && col < _cols) ? _data[row * _cols + col] : T{};
     }
 
     static T add(T a, T b)
@@ -56,17 +64,57 @@ private:
         }
     }
 
-    Image combine(const Image &other, bool isSum) const
+    static T invert(T value)
+    {
+        if constexpr (std::is_same_v<T, bool>)
+        {
+            return !value;
+        }
+        else if constexpr (std::is_signed_v<T>)
+        {
+            return saturate<T>(-static_cast<long double>(value));
+        }
+        else
+        {
+            return static_cast<T>(std::numeric_limits<T>::max() - value);
+        }
+    }
+
+    static bool equal(T a, T b)
+    {
+        if constexpr (std::is_floating_point_v<T>)
+        {
+            return std::fabs(static_cast<double>(a) - static_cast<double>(b)) < _epsilon;
+        }
+        else
+        {
+            return a == b;
+        }
+    }
+
+    // Поэлементная операция над двумя изображениями (результат — максимальный размер)
+    template <typename Operation>
+    Image combine(const Image &other, Operation operation) const
     {
         Image result(std::max(_rows, other._rows), std::max(_cols, other._cols), false);
         for (std::size_t i = 0; i < result._rows; ++i)
         {
             for (std::size_t j = 0; j < result._cols; ++j)
             {
-                T a = (i < _rows && j < _cols) ? data_[i * _cols + j] : T{};
-                T b = (i < other._rows && j < other._cols) ? other._data[i * other._cols + j] : T{};
-                result._data[i * result._cols + j] = isSum ? add(a, b) : multiply(a, b);
+                result._data[i * result._cols + j] = operation(valueAt(i, j), other.valueAt(i, j));
             }
+        }
+        return result;
+    }
+
+    // Операция над каждым элементом изображения
+    template <typename Operation>
+    Image mapped(Operation operation) const
+    {
+        Image result(_rows, _cols, false);
+        for (std::size_t i = 0; i < _rows * _cols; ++i)
+        {
+            result._data[i] = operation(_data[i]);
         }
         return result;
     }
@@ -78,45 +126,33 @@ private:
         {
             if constexpr (std::is_same_v<T, bool>)
             {
-                std::uniform_int_distribution<int> dist(0, 1);
-                data_[i] = (dist(generator) == 1);
+                std::bernoulli_distribution distribution(0.5);
+                _data[i] = distribution(generator);
             }
             else if constexpr (std::is_floating_point_v<T>)
             {
-                std::uniform_real_distribution<T> dist(-100, 100);
-                data_[i] = dist(generator);
+                std::uniform_real_distribution<T> distribution(-100, 100);
+                _data[i] = distribution(generator);
             }
             else
             {
                 const int low = std::max(static_cast<int>(std::numeric_limits<T>::lowest()), -100);
                 const int high = std::min(static_cast<int>(std::numeric_limits<T>::max()), 100);
-                std::uniform_int_distribution<int> dist(low, high);
-                data_[i] = static_cast<T>(dist(generator));
+                std::uniform_int_distribution<int> distribution(low, high);
+                _data[i] = static_cast<T>(distribution(generator));
             }
-        }
-    }
-
-    static bool equal(T a, T b)
-    {
-        if constexpr (std::is_floating_point_v<T>)
-        {
-            return std::fabs(static_cast<double>(a) - static_cast<double>(b)) < kEpsilon;
-        }
-        else
-        {
-            return a == b;
         }
     }
 
 public:
     Image(std::size_t rows, std::size_t cols, bool randomFill)
-        : rows_(rows), cols_(cols), data_(nullptr)
+        : _rows(rows), _cols(cols), _data(nullptr)
     {
         if (rows == 0 || cols == 0)
         {
             throw std::invalid_argument("Image size must be positive");
         }
-        data_ = new T[rows_ * cols_]();
+        _data = new T[_rows * _cols]();
         if (randomFill)
         {
             fillRandom();
@@ -171,53 +207,23 @@ public:
         return out;
     }
 
-    Image operator*(const Image &other) const { return combine(other, false); }
-
-    Image operator+(const Image &other) const { return combine(other, true); }
-
-    Image operator*(T constant) const
-    {
-        Image result(_rows, _cols, false);
-        for (std::size_t i = 0; i < _rows * _cols; ++i)
-        {
-            result._data[i] = multiply(_data[i], constant);
-        }
-        return result;
-    }
+    Image operator+(const Image &other) const { return combine(other, add); }
+    Image operator*(const Image &other) const { return combine(other, multiply); }
 
     Image operator+(T constant) const
     {
-        Image result(_rows, _cols, false);
-        for (std::size_t i = 0; i < _rows * _cols; ++i)
-        {
-            result._data[i] = add(_data[i], constant);
-        }
-        return result;
+        return mapped([constant](T value) { return add(value, constant); });
     }
 
-    friend Image operator*(T constant, const Image &image) { return image * constant; }
-    friend Image operator+(T constant, const Image &image) { return image + constant; }
-
-    Image operator!() const
+    Image operator*(T constant) const
     {
-        Image result(_rows, _cols, false);
-        for (std::size_t i = 0; i < _rows * _cols; ++i)
-        {
-            if constexpr (std::is_same_v<T, bool>)
-            {
-                result._data[i] = !_data[i];
-            }
-            else if constexpr (std::is_signed_v<T>)
-            {
-                result._data[i] = saturate<T>(-static_cast<long double>(_data[i]));
-            }
-            else
-            {
-                result._data[i] = static_cast<T>(std::numeric_limits<T>::max() - _data[i]);
-            }
-        }
-        return result;
+        return mapped([constant](T value) { return multiply(value, constant); });
     }
+
+    friend Image operator+(T constant, const Image &image) { return image + constant; }
+    friend Image operator*(T constant, const Image &image) { return image * constant; }
+
+    Image operator!() const { return mapped(invert); }
 
     long double fillRatio() const
     {
@@ -249,6 +255,7 @@ public:
     bool operator!=(const Image &other) const { return !(*this == other); }
 };
 
+// Рисование отрезка алгоритмом Брезенхэма (x — столбец, y — строка)
 template <typename T>
 void drawLine(Image<T> &image, int x1, int y1, int x2, int y2, T value)
 {
@@ -288,7 +295,8 @@ void drawLine(Image<T> &image, int x1, int y1, int x2, int y2, T value)
 }
 
 template <typename T>
-void demonstrate(const char* typeName) {
+void demonstrate(const char *typeName)
+{
     std::cout << "=========== Type: " << typeName << " ===========\n";
 
     Image<T> a(3, 4, true);
@@ -310,26 +318,33 @@ void demonstrate(const char* typeName) {
     Image<T> copy = a;
     Image<T> assigned(1, 1, false);
     assigned = a;
-    std::cout << "copy == a: " << (copy == a) << ", assigned != a: " << (assigned != a)
+    std::cout << std::boolalpha
+              << "copy == a: " << (copy == a)
+              << ", assigned != a: " << (assigned != a)
               << ", a == b: " << (a == b) << "\n\n";
 }
 
-int main() {
-    try {
+int main()
+{
+    try
+    {
         demonstrate<bool>("bool");
         demonstrate<char>("char");
         demonstrate<float>("float");
         demonstrate<short>("short");
 
-        try {
+        try
+        {
             Image<short> small(2, 2, false);
             small(5, 5) = 1;
-        } catch (const std::out_of_range& error) {
+        }
+        catch (const std::out_of_range &error)
+        {
             std::cout << "Caught exception: " << error.what() << "\n\n";
         }
 
-        std::size_t rows = 0;
-        std::size_t cols = 0;
+        int rows = 0;
+        int cols = 0;
         int x1 = 0;
         int y1 = 0;
         int x2 = 0;
@@ -343,15 +358,18 @@ int main() {
         std::cout << "Enter fill value: ";
         std::cin >> fillValue;
 
-        if (!std::cin) {
+        if (!std::cin || rows <= 0 || cols <= 0)
+        {
             std::cout << "Input error\n";
             return 1;
         }
 
-        Image<short> canvas(rows, cols, false);
+        Image<short> canvas(static_cast<std::size_t>(rows), static_cast<std::size_t>(cols), false);
         drawLine(canvas, x1, y1, x2, y2, fillValue);
         std::cout << "Result:\n" << canvas;
-    } catch (const std::exception& error) {
+    }
+    catch (const std::exception &error)
+    {
         std::cout << "Error: " << error.what() << '\n';
         return 1;
     }
