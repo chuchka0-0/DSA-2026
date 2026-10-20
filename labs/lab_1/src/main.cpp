@@ -34,7 +34,6 @@ private:
         }
     }
 
-    // Значение пикселя или ноль, если пикселя за границами нет
     T valueAt(std::size_t row, std::size_t col) const
     {
         return (row < _rows && col < _cols) ? _data[row * _cols + col] : T{};
@@ -92,7 +91,6 @@ private:
         }
     }
 
-    // Поэлементная операция над двумя изображениями (результат — максимальный размер)
     template <typename Operation>
     Image combine(const Image &other, Operation operation) const
     {
@@ -107,7 +105,6 @@ private:
         return result;
     }
 
-    // Операция над каждым элементом изображения
     template <typename Operation>
     Image mapped(Operation operation) const
     {
