@@ -284,22 +284,22 @@ void demonstrate(const char *typeName)
 
     std::cout << "Image a (3x4):\n"
               << a;
-    std::cout << "Image b (2x5):\n"
+    std::cout << "\nImage b (2x5):\n"
               << b;
-    std::cout << "a + b (size 3x5):\n"
+    std::cout << "\na + b (size 3x5):\n"
               << a + b;
-    std::cout << "a * b (size 3x5):\n"
+    std::cout << "\na * b (size 3x5):\n"
               << a * b;
-    std::cout << "a + max value (overflow is clamped):\n"
+    std::cout << "\na + max value (overflow is clamped):\n"
               << a + big;
-    std::cout << "max value * a:\n"
+    std::cout << "\nmax value * a:\n"
               << big * a;
-    std::cout << "!a (inverted):\n"
+    std::cout << "\n!a (inverted):\n"
               << !a;
-    std::cout << "Fill ratio of a: " << a.fillRatio() << '\n';
+    std::cout << "\nFill ratio of a: " << a.fillRatio() << '\n';
 
     a(0, 0) = b(1, 1);
-    std::cout << "After a(0,0) = b(1,1):\n"
+    std::cout << "\nAfter a(0,0) = b(1,1):\n"
               << a;
 
     Image<T> copy = a;
