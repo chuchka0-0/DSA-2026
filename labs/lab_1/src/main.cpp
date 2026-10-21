@@ -26,7 +26,7 @@ private:
 
     static constexpr double _epsilon = 1e-6;
 
-    void checkIndex(std::size_t row_index, std::size_t col_index) const
+    void checkIndex(const std::size_t row_index, const std::size_t col_index) const
     {
         if (row_index >= _rows || col_index >= _cols)
         {
@@ -34,7 +34,7 @@ private:
         }
     }
 
-    T valueAt(std::size_t row_index, std::size_t col_index) const
+    T valueAt(const std::size_t row_index, const std::size_t col_index) const
     {
         return (row_index < _rows && col_index < _cols) ? _data[row_index * _cols + col_index] : T{};
     }
