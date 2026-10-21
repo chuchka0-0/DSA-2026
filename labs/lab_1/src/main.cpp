@@ -26,17 +26,17 @@ private:
 
     static constexpr double _epsilon = 1e-6;
 
-    void checkIndex(std::size_t row, std::size_t col) const
+    void checkIndex(std::size_t row_index, std::size_t col_index) const
     {
-        if (row >= _rows || col >= _cols)
+        if (row_index >= _rows || col_index >= _cols)
         {
             throw std::out_of_range("Image index is out of range");
         }
     }
 
-    T valueAt(std::size_t row, std::size_t col) const
+    T valueAt(std::size_t row_index, std::size_t col_index) const
     {
-        return (row < _rows && col < _cols) ? _data[row * _cols + col] : T{};
+        return (row_index < _rows && col_index < _cols) ? _data[row_index * _cols + col_index] : T{};
     }
 
     static T add(T a, T b) { return saturate<T>(a + b); }
