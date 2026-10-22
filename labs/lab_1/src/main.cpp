@@ -159,16 +159,16 @@ public:
     std::size_t rows() const { return _rows; }
     std::size_t cols() const { return _cols; }
 
-    T &operator()(std::size_t row, std::size_t col)
+    T &operator()(std::size_t row_index, std::size_t col_index)
     {
-        checkIndex(row, col);
-        return _data[row * _cols + col];
+        checkIndex(row_index, col_index);
+        return _data[row_index * _cols + col_index];
     }
 
-    const T &operator()(std::size_t row, std::size_t col) const
+    const T &operator()(std::size_t row_index, std::size_t col_index) const
     {
-        checkIndex(row, col);
-        return _data[row * _cols + col];
+        checkIndex(row_index, col_index);
+        return _data[row_index * _cols + col_index;
     }
 
     friend std::ostream &operator<<(std::ostream &out, const Image &image)
