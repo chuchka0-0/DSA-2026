@@ -168,7 +168,7 @@ public:
     const T &operator()(std::size_t row_index, std::size_t col_index) const
     {
         checkIndex(row_index, col_index);
-        return _data[row_index * _cols + col_index;
+        return _data[row_index * _cols + col_index];
     }
 
     friend std::ostream &operator<<(std::ostream &out, const Image &image)
