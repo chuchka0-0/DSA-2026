@@ -26,17 +26,17 @@ private:
 
     static constexpr double _epsilon = 1e-6;
 
-    void checkIndex(const std::size_t row_index, const std::size_t col_index) const
+    void checkIndex(const std::size_t rowIndex, const std::size_t colIndex) const
     {
-        if (row_index >= _rows || col_index >= _cols)
+        if (rowIndex >= _rows || colIndex >= _cols)
         {
             throw std::out_of_range("Image index is out of range");
         }
     }
 
-    T valueAt(const std::size_t row_index, const std::size_t col_index) const
+    T valueAt(const std::size_t rowIndex, const std::size_t colIndex) const
     {
-        return (row_index < _rows && col_index < _cols) ? _data[row_index * _cols + col_index] : T{};
+        return (rowIndex < _rows && colIndex < _cols) ? _data[rowIndex * _cols + colIndex] : T{};
     }
 
     static T add(T a, T b) { return saturate<T>(a + b); }
@@ -159,16 +159,16 @@ public:
     std::size_t rows() const { return _rows; }
     std::size_t cols() const { return _cols; }
 
-    T &operator()(std::size_t row_index, std::size_t col_index)
+    T &operator()(std::size_t rowIndex, std::size_t colIndex)
     {
-        checkIndex(row_index, col_index);
-        return _data[row_index * _cols + col_index];
+        checkIndex(rowIndex, colIndex);
+        return _data[rowIndex * _cols + colIndex];
     }
 
-    const T &operator()(std::size_t row_index, std::size_t col_index) const
+    const T &operator()(std::size_t rowIndex, std::size_t colIndex) const
     {
-        checkIndex(row_index, col_index);
-        return _data[row_index * _cols + col_index];
+        checkIndex(rowIndex, colIndex);
+        return _data[rowIndex * _cols + colIndex];
     }
 
     friend std::ostream &operator<<(std::ostream &out, const Image &image)
@@ -259,7 +259,7 @@ void drawLine(Image<T> &image, int x1, int y1, int x2, int y2, T value)
         {
             break;
         }
-        const int doubledError = 2 * error;
+        const int Р = 2 * error;
         if (doubledError >= dy)
         {
             error += dy;
