@@ -259,7 +259,7 @@ void drawLine(Image<T> &image, int x1, int y1, int x2, int y2, T value)
         {
             break;
         }
-        const int Р = 2 * error;
+        const int doubledError = 2 * error;
         if (doubledError >= dy)
         {
             error += dy;
