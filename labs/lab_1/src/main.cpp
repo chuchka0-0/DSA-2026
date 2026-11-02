@@ -267,6 +267,7 @@ void drawLine(Image<T> &image, int x1, int y1, int x2, int y2, T value)
         }
         if (doubledError <= dx)
         {
+
             error += dx;
             y1 += stepY;
         }
