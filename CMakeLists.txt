@@ -19,3 +19,4 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 add_subdirectory("labs")
+add_subdirectory("practice")
