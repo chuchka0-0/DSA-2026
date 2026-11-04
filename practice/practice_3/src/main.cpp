@@ -78,6 +78,57 @@ bool sorted(Node<T> *point)
 	return true;
 }
 
+// Удалить последний элемент односвязного списка
+template<typename T>
+void Del(Node<T>* &head)
+{
+	if (!head)
+	{
+		return;
+	}
+
+	if (!head->li_next)
+	{
+		delete head;
+		head = nullptr;
+		return;
+	}
+
+	Node<T>* point = head;
+	while (point->li_next->li_next)
+	{
+		point = point->li_next;
+	}
+
+	delete point->li_next;
+	point->li_next = nullptr;
+	return;
+}
+
+// Написать функцию добавления нового элемента с заданным числовым значением в конец односвязного списка.
+template<typename T>
+void Add(Node<T>* &head, const T &val)
+{
+	if (!head)
+	{
+		head = new Node<T>;
+		head->info = val;
+		head->li_next = nullptr;
+		return;
+	}
+
+	Node<T>* current = head;
+	while (current->li_next)
+	{
+		current = current->li_next;
+	}
+
+	Node<T>* new_end = new Node<T>;
+	current->li_next = new_end;
+	new_end->li_next = nullptr;
+	new_end->info = val;
+	return;
+}
 
 int main()
 {
@@ -88,12 +139,21 @@ int main()
 	two.info = 2;
 	one.li_next = &two;
 
-	two.li_next = nullptr;
+	Node<int> three;
+	three.info = 2;
+	two.li_next = &three;
+
+	three.li_next = nullptr;
 
 	Print(&one);
 	std::cout << count_elem(&one) << '\n';
 	std::cout << avg(&one) << '\n';
 	std::cout << sorted(&one) << '\n';
-
+	
+	/*
+	Node<int>* p = &one;
+	Del(p);
+	Print(&one);*/
+	
 	return 0;
 }
