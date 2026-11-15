@@ -7,11 +7,27 @@ struct Node
 	Node *link_next;
 };
 
-
 template<typename T>
 concept ListValue = std::floating_point<T> || (std::integral<T> && !std::same_as<T, bool> && !std::same_as<T, char>);
 //грубо говоря - булевое значение, показывающее удовлетворяет ли тип данных или нет
+//именованное ограничение на параметры шаблона: предикат, который проверяет, подходит ли тип.
 
+
+template<typename T>
+T RandomValue(std::mt19937 &engine, const T &min_value, const T &max_value) // Передаётся по ссылке, тк при каждом вызове его внутреннее состояние меняется
+{
+	if constexpr (std::is_integral_v<T>)
+	{
+		std::uniform_int_distribution<T> distribution(min_value, max_value);
+		return distribution(engine);
+	}
+
+	else
+	{
+		std::uniform_real_distribution<T> distribution(min_value, max_value);
+		return distribution(engine);
+	}
+}
 
 template<ListValue T>
 class LinkedList final
