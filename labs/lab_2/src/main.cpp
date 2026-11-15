@@ -4,11 +4,17 @@ template<typename T>
 struct Node
 {
 	T value;
-	Node<T> *link_next;
+	Node *link_next;
 };
 
+
 template<typename T>
-class LinkedList
+concept ListValue = std::floating_point<T> || (std::integral<T> && !std::same_as<T, bool> && !std::same_as<T, char>);
+//грубо говоря - булевое значение, показывающее удовлетворяет ли тип данных или нет
+
+
+template<ListValue T>
+class LinkedList final
 {
 private:
 	Node<T> *_tail = nullptr;
