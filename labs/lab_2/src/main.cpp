@@ -4,7 +4,7 @@ template<typename T>
 struct Node
 {
 	T value;
-	Node *link_next;
+	Node<T> *link_next;
 };
 
 template<typename T>
@@ -25,17 +25,22 @@ private:
 public:
 	LinkedList() = default;
 
+	//Конструктор, заполняющий список случайными значениями согласно заданию
 	LinkedList(std::size_t size, long double seed)
 	{
 
 	}
 
+	//Конструктор копирования
 	LinkedList(const LinkedList &other)
 	{
 
 	}
 
-	~LinkedList() {}
+	~LinkedList()
+	{
+		delete[] _tail;
+	}
 
 	LinkedList operator=(LinkedList&& other)
 	{
