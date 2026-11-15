@@ -69,6 +69,7 @@ public:
 
 	~LinkedList()
 	{
+		clear();
 	}
 
 	LinkedList operator=(LinkedList&& other)
