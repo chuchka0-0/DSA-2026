@@ -115,6 +115,20 @@ public:
 	{
 
 	}
+
+
+	void clear()
+	{
+		for (std::size_t i = 0; i < _size, ++i)
+		{
+			Node<T>* head = tail->li_next;
+			tail->li_next = head->li_next;
+			delete head;
+		}
+
+		_tail = nullptr;
+		_size = 0;
+	}
 };
 
 int main()
