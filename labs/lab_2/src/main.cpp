@@ -44,6 +44,14 @@ private:
 		}
 	}
 
+	static void check_range(const T& min_value, const T& max_value)
+	{
+		if (min_value > max_value)
+		{
+			throw std::invalid_argument("Lower bound is greater than upper bound");
+		}
+	}
+
 public:
 	LinkedList() = default;
 
@@ -61,7 +69,6 @@ public:
 
 	~LinkedList()
 	{
-		delete[] _tail;
 	}
 
 	LinkedList operator=(LinkedList&& other)
