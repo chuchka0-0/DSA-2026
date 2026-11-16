@@ -68,8 +68,20 @@ private:
 		return node;
 	}
 
-	
-	void swap(LinkedList &other)
+	void append(LinkedList &other) noexcept
+	{
+		if (other._tail == nullptr)
+		{
+			return;
+		}
+
+		if (_tail != nullptr)
+		{
+
+		}
+	}
+
+	void swap(LinkedList &other) noexcept
 	{
 		std::swap(_tail, other._tail);
 		std::swap(_size, other._size);
@@ -78,13 +90,13 @@ private:
 public:
 	LinkedList() = default;
 
-	LinkedList(std::size_t size, const T& min_value, const T& max_value, long double seed)
+	LinkedList(std::size_t size, const T& min_value, const T& max_value, std::mt19937::result_type seed)
 	{
 		check_range(min_value, max_value);
 		try
 		{
 			std::mt19937 engine(seed);
-			for (std::size_t i = 0; i < size, ++i)
+			for (std::size_t i = 0; i < size; ++i)
 			{
 				push_tail(RandomValue(engine, min_value, max_value));
 			}
@@ -124,7 +136,7 @@ public:
 		other._size = 0;
 	}
 
-	LinkedList& &operator=(const LinkedList &other)
+	LinkedList &operator=(const LinkedList &other)
 	{
 		if (this != &other)
 		{
@@ -155,22 +167,27 @@ public:
 		_tail = insert_tail_node(value);
 	}
 
-	void push_head(const LinkedList &other)
+	void push_tail(const LinkedList& other)
+	{
+
+	}
+	
+	void push_head(const T& value)
 	{
 
 	}
 
-	void push_head()
+	void push_head(const LinkedList& other)
 	{
 	
 	}
 
-	void pop_head()
+	void pop_head(const T& value)
 	{
 	
 	}
 
-	void pop_tail()
+	void pop_tail(const T& value)
 	{
 
 	}
@@ -185,13 +202,12 @@ public:
 
 	}
 
-
 	void clear()
 	{
-		for (std::size_t i = 0; i < _size, ++i)
+		for (std::size_t i = 0; i < _size; ++i)
 		{
-			Node<T>* head = tail->link_next;
-			tail->link_next = head->link_next;
+			Node<T>* head = _tail->link_next;
+			_tail->link_next = head->link_next;
 			delete head;
 		}
 
