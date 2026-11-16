@@ -68,6 +68,13 @@ private:
 		return node;
 	}
 
+	
+	void swap(LinkedList &other)
+	{
+		std::swap(_tail, other._tail);
+		std::swap(_size, other._size);
+	}
+
 public:
 	LinkedList() = default;
 
@@ -97,11 +104,6 @@ public:
 
 	}
 
-	~LinkedList()
-	{
-		clear();
-	}
-
 	LinkedList(LinkedList &&other) noexcept : _tail(other._tail), _size(other._size)
 	{
 		other._tail = nullptr;
@@ -118,14 +120,19 @@ public:
 
 	}
 
+	~LinkedList()
+	{
+		clear();
+	}
+
 	void push_tail(const T &value)
 	{
 		_tail = insert_tail_node(value);
 	}
 
-	void push_head()
+	void push_head(const LinkedList &other)
 	{
-	
+		
 	}
 
 	void push_head()
