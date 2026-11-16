@@ -101,7 +101,21 @@ public:
 
 	LinkedList(const LinkedList &other)
 	{
+		try
+		{
+			const Node<T>* node = other._tail;
+			for (std::size_t i = 0; i < other._size; ++i)
+			{
+				node = node->link_next;
+				push_tail(node->value);
+			}
+		}
 
+		catch (...)
+		{
+			clear();
+			throw;
+		}
 	}
 
 	LinkedList(LinkedList &&other) noexcept : _tail(other._tail), _size(other._size)
@@ -132,7 +146,7 @@ public:
 
 	void push_head(const LinkedList &other)
 	{
-		
+
 	}
 
 	void push_head()
