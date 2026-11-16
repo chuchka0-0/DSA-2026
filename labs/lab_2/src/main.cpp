@@ -9,12 +9,9 @@ struct Node
 
 template<typename T>
 concept ListValue = std::floating_point<T> || (std::integral<T> && !std::same_as<T, bool> && !std::same_as<T, char>);
-//грубо говоря - булевое значение, показывающее удовлетворяет ли тип данных или нет
-//именованное ограничение на параметры шаблона: предикат, который проверяет, подходит ли тип.
-
 
 template<typename T>
-T RandomValue(std::mt19937 &engine, const T &min_value, const T &max_value) // Передаётся по ссылке, тк при каждом вызове его внутреннее состояние меняется
+T RandomValue(std::mt19937 &engine, const T &min_value, const T &max_value)
 {
 	if constexpr (std::is_integral_v<T>)
 	{
@@ -52,16 +49,49 @@ private:
 		}
 	}
 
+	Node<T> *insert_tail_node(const T& value)
+	{
+		Node<T>* node = new Node<T>(value);
+		if(_tail == nullptr)
+		{
+			node->link_next = node;
+			_tail = node;
+		}
+
+		else
+		{
+			node->link_next = _tail->link_next;
+			_tail->link_next = node;
+		}
+
+		++_size;
+		return node;
+	}
+
 public:
 	LinkedList() = default;
 
-	//Конструктор, заполняющий список случайными значениями согласно заданию
-	LinkedList(std::size_t size, long double seed)
+	LinkedList(std::size_t size, const T& min_value, const T& max_value, long double seed)
 	{
+		check_range(min_value, max_value);
+		try
+		{
+			std::mt19937 engine(seed);
+			for (std::size_t i = 0; i < size, ++i)
+			{
+				push_tail(RandomValue(engine, min_value, max_value));
+			}
+
+		}
+		
+		catch (...)
+		{
+			clear();
+			throw;
+		}
 
 	}
 
-	//Конструктор копирования
 	LinkedList(const LinkedList &other)
 	{
 
@@ -72,19 +102,25 @@ public:
 		clear();
 	}
 
-	LinkedList operator=(LinkedList&& other)
+	LinkedList(LinkedList &&other) noexcept : _tail(other._tail), _size(other._size)
+	{
+		other._tail = nullptr;
+		other._size = 0;
+	}
+
+	LinkedList &operator=(LinkedList &&other)
 	{
 
 	}
 
-	void push_tail()
+	LinkedList operator=(LinkedList &&other)
 	{
-	
+
 	}
 
-	void push_tail()
+	void push_tail(const T &value)
 	{
-	
+		_tail = insert_tail_node(value);
 	}
 
 	void push_head()
@@ -122,8 +158,8 @@ public:
 	{
 		for (std::size_t i = 0; i < _size, ++i)
 		{
-			Node<T>* head = tail->li_next;
-			tail->li_next = head->li_next;
+			Node<T>* head = tail->link_next;
+			tail->link_next = head->link_next;
 			delete head;
 		}
 
