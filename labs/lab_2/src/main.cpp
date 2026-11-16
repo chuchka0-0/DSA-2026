@@ -124,14 +124,25 @@ public:
 		other._size = 0;
 	}
 
-	LinkedList &operator=(LinkedList &&other)
+	LinkedList& &operator=(const LinkedList &other)
 	{
+		if (this != &other)
+		{
+			LinkedList copy(other);
+			swap(copy);
+		}
 
+		return *this;
 	}
 
-	LinkedList operator=(LinkedList &&other)
+	LinkedList &operator=(LinkedList &&other) noexcept
 	{
+		if (this != &other)
+		{
+			swap(other);
+		}
 
+		return *this;
 	}
 
 	~LinkedList()
