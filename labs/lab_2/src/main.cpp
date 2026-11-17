@@ -182,12 +182,14 @@ public:
 	
 	void push_head(const T& value)
 	{
-
+		insert_tail_node(value);
 	}
 
 	void push_head(const LinkedList &other)
 	{
-	
+		LinkedList copy(other);
+		copy.append(*this);
+		swap(copy);
 	}
 
 	void pop_head(const T& value)
