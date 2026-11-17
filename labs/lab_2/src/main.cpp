@@ -77,8 +77,15 @@ private:
 
 		if (_tail != nullptr)
 		{
-
+			Node<T>* head = _tail->link_next;
+			_tail->link_next = other._tail->link_next;
+			other._tail->link_next = head;
 		}
+
+		_tail = other._tail;
+		_size += other._size;
+		other._tail = nullptr;
+		other._size = 0;
 	}
 
 	void swap(LinkedList &other) noexcept
@@ -167,9 +174,10 @@ public:
 		_tail = insert_tail_node(value);
 	}
 
-	void push_tail(const LinkedList& other)
+	void push_tail(const LinkedList &other)
 	{
-
+		LinkedList copy(other);
+		append(copy);
 	}
 	
 	void push_head(const T& value)
@@ -177,7 +185,7 @@ public:
 
 	}
 
-	void push_head(const LinkedList& other)
+	void push_head(const LinkedList &other)
 	{
 	
 	}
@@ -214,9 +222,39 @@ public:
 		_tail = nullptr;
 		_size = 0;
 	}
+
+
+
+
+
+
+	friend std::ostream& operator<<(std::ostream& stream, const LinkedList& list)
+	{
+		stream << '(';
+		if (list._tail != nullptr)
+		{
+			const Node<T>* node = list._tail->link_next;
+			for (std::size_t i = 0; i < list._size; ++i)
+			{
+				if (i != 0)
+				{
+					stream << ", ";
+				}
+				stream << node->value;
+				node = node->link_next;
+			}
+		}
+		return stream << ')';
+	}
 };
 
 int main()
 {
+	LinkedList<int> a(2, -3, 3, 400);
+	LinkedList<int> b(4, -12, 20, 340);
+	std::cout << a;
+	std::cout << b;
+	a.push_tail(b);
+	std::cout << a;
 	return 0;
 }
