@@ -68,6 +68,25 @@ private:
 		return node;
 	}
 
+	Node<T>* node_at(std::size_t index)
+	{
+		check_empty();
+		index %= _size;
+
+		if (index == _size - 1)
+		{
+			return _tail;
+		}
+
+		Node<T>* node = _tail->link_next;
+		for (std::size_t i = 0; i < index; ++i)
+		{
+			node = node->link_next;
+		}
+
+		return node;
+	}
+	
 	void append(LinkedList &other) noexcept
 	{
 		if (other._tail == nullptr)
@@ -194,12 +213,41 @@ public:
 
 	T pop_head()
 	{
-		return;
+		
+		check_empty();
+		Node<T>* head = _tail->link_next;
+		T value = std::move(head->value);
+		if (_size == 1)
+		{
+			_tail = nullptr;
+		}
+		else
+		{
+			_tail->link_next = head->link_next;
+		}
+		delete head;
+		--_size;
+
+		return value;
 	}
 
 	T pop_tail()
 	{
-		return;
+		check_empty();
+		Node<T>* old_tail = _tail;
+		T value = std::move(old_tail->value);
+		if (_size == 1)
+		{
+			_tail = nullptr;
+		}
+		else
+		{
+			
+		}
+		delete old_tail;
+		--_size;
+
+		return value;
 	}
 
 	void delete_node()
