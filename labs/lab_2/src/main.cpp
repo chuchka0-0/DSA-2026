@@ -192,14 +192,14 @@ public:
 		swap(copy);
 	}
 
-	void pop_head(const T& value)
+	T pop_head()
 	{
-	
+		return;
 	}
 
-	void pop_tail(const T& value)
+	T pop_tail()
 	{
-
+		return;
 	}
 
 	void delete_node()
@@ -226,28 +226,27 @@ public:
 	}
 
 
-
-
-
-
-	friend std::ostream& operator<<(std::ostream& stream, const LinkedList& list)
+	friend std::ostream& operator<<(std::ostream &stream, const LinkedList &list)
 	{
 		stream << '(';
-		if (list._tail != nullptr)
+		if(list._tail != nullptr)
 		{
-			const Node<T>* node = list._tail->link_next;
+			const Node<T> *node = list._tail->link_next;
 			for (std::size_t i = 0; i < list._size; ++i)
 			{
 				if (i != 0)
 				{
 					stream << ", ";
 				}
+
 				stream << node->value;
 				node = node->link_next;
 			}
 		}
+
 		return stream << ')';
 	}
+
 };
 
 int main()
