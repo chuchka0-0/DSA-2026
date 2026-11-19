@@ -269,7 +269,7 @@ public:
 
 			previous->link_next = current->link_next;
 
-			if (current = _tail)
+			if (current == _tail)
 			{
 				_tail = previous;
 			}
