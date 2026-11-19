@@ -286,9 +286,24 @@ public:
 		return inital_size - _size;
 	}
 
-	LinkedList operator[]()
-	{
+	std::size_t size() const { return _size; }
 
+	T& operator[](std::size_t index)
+	{
+		if (index >= _size)
+		{
+			throw std::out_of_range("Index out of range");
+		}
+		return node_at(index)->value;
+	}
+
+	const T& operator[](std::size_t index) const
+	{
+		if (index >= _size)
+		{
+			throw std::out_of_range("Index out of range");
+		}
+		return node_at(index)->value;
 	}
 
 	void clear()
@@ -328,13 +343,50 @@ public:
 
 };
 
+template<ListValue T>
+void SieveOfEratosthenes(LinkedList<T>& list)
+{
+	if (list.size() == 0)
+	{
+		return;
+	}
+
+	const T max_value = list[list.size() - 1]; // список упорядочен, последний элемент максимальный
+
+	list.delete_node(T(1)); // 1 не простое
+	for (T i = 2; i * i <= max_value; ++i)
+	{
+		for (T j = i * i; j <= max_value; j += i)
+		{
+			list.delete_node(j);
+		}
+	}
+}
+
+template<ListValue T>
+LinkedList<T> PrimesUpTo(T n)
+{
+	LinkedList<T> list;
+	for (T i = 1; i <= n; ++i)
+	{
+		list.push_tail(i);
+	}
+
+	SieveOfEratosthenes(list);
+	return list;
+}
+
 int main()
 {
-	LinkedList<int> a(2, -3, 3, 400);
-	LinkedList<int> b(4, -12, 20, 340);
-	std::cout << a;
-	std::cout << b;
-	a.push_tail(b);
-	std::cout << a;
+	std::cout << PrimesUpTo(50) << '\n';
+	std::cout << PrimesUpTo<long long>(100) << '\n';
+
+	LinkedList<int> list;
+	for (int i = 1; i <= 30; ++i)
+	{
+		list.push_tail(i);
+	}
+	SieveOfEratosthenes(list);
+	std::cout << list << '\n';
 	return 0;
 }
