@@ -255,10 +255,10 @@ public:
 
 	std::size_t delete_node(const T &value)
 	{
-		const std::size_t inital_size = _size;
+		const std::size_t initial_size = _size;
 		Node<T>* previous = _tail;
 
-		for (std::size_t i = 0; i < inital_size; ++i)
+		for (std::size_t i = 0; i < initial_size; ++i)
 		{
 			Node<T>* current = previous->link_next;
 			if (current->value != value)
@@ -283,7 +283,7 @@ public:
 			_tail = nullptr;
 		}
 
-		return inital_size - _size;
+		return initial_size - _size;
 	}
 
 	std::size_t size() const { return _size; }
