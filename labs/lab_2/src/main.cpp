@@ -338,9 +338,9 @@ void SieveOfEratosthenes(LinkedList<T>& list)
 		return;
 	}
 
-	const T max_value = list[list.size() - 1]; // список упорядочен, последний элемент максимальный
+	const T max_value = list[list.size() - 1];
 
-	list.delete_node(T(1)); // 1 не простое
+	list.delete_node(T(1));
 	for (T i = 2; i * i <= max_value; ++i)
 	{
 		for (T j = i * i; j <= max_value; j += i)
@@ -525,7 +525,7 @@ void TestClearAndErrors()
 void TestSieve()
 {
 	std::cout << "PrimesUpTo(50): " << PrimesUpTo(50) << '\n';
-	std::cout << "PrimesUpTo<long long>(100): " << PrimesUpTo<long long>(100) << '\n';
+	std::cout << "PrimesUpTo<long long>(100): " << <long long>(100) << '\n';
 
 	LinkedList<int> list;
 	for (int i = 1; i <= 30; ++i)
